@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "node:fs/promises";
-import serverless from "serverless-http"; // <--- new import
 
 const app = express();
 
@@ -10,16 +9,17 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 
-// Routes
+// GET meals
 app.get("/api/meals", async (req, res) => {
   try {
-    const meals = await fs.readFile("./data/available-meals.json", "utf8");
+    const meals = await fs.readFile("data/available-meals.json", "utf8");
     res.json(JSON.parse(meals));
   } catch (err) {
     res.status(500).json({ message: "Could not load meals." });
   }
 });
 
+// POST order
 app.post("/api/orders", async (req, res) => {
   const orderData = req.body.order;
 
@@ -34,16 +34,19 @@ app.post("/api/orders", async (req, res) => {
 
   let allOrders = [];
   try {
-    const ordersFile = await fs.readFile("./data/orders.json", "utf8");
+    const ordersFile = await fs.readFile("data/orders.json", "utf8");
     allOrders = ordersFile ? JSON.parse(ordersFile) : [];
   } catch (err) {
     allOrders = [];
   }
 
   allOrders.push(newOrder);
-  await fs.writeFile("./data/orders.json", JSON.stringify(allOrders, null, 2));
+  await fs.writeFile("data/orders.json", JSON.stringify(allOrders, null, 2));
   res.status(201).json({ message: "Order created!" });
 });
 
-// Export handler for Vercel
-export const handler = serverless(app);
+// Start server (local Express backend)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

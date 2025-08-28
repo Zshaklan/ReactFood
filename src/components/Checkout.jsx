@@ -26,7 +26,10 @@ export default function Checkout() {
     error,
     sendRequest,
     clearData,
-  } = useHttp("http://localhost:3000/orders", requestConfig);
+  } = useHttp(
+    "https://react-food-backend-b4dfb-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json",
+    requestConfig
+  );
 
   const cartTotal = cartCtx.cartItems.reduce(
     (totalPrice, item) => totalPrice + item.quantity * item.price,
